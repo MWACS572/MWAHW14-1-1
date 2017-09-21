@@ -2,12 +2,14 @@ import { Component, OnInit,  } from '@angular/core';
 import {FormGroup, FormBuilder, Validators} from '@angular/forms';
 import {DbService} from "../db.service";
 import {Subscription} from "rxjs/Subscription";
+import 'rxjs/add/operator/map';
+
 @Component({
     selector: 'app-form',
     templateUrl: './form.component.html',
     styleUrls: ['./form.component.css']
   })
-  export class FormComponent implements OnInit {
+  export class FormComponent {
     myForm:FormGroup;
     subscription:Subscription;
 
@@ -23,20 +25,17 @@ import {Subscription} from "rxjs/Subscription";
     onSubmit(){
       console.log(this.myForm.value);
     }
-    ngOnInit() {}
+
     getDataMethod() {
-     this.subscription = this.db.getData().subscribe(data => {
-        data = data.json();
+     this.subscription = this.db.getData().map(data=>data.json()).subscribe(data => {
         this.myForm.controls['name'].setValue(data.name);
         this.myForm.controls['email'].setValue(data.email);
 
       });
 
 
-      this.subscription = this.db.getPost().subscribe(data => {
-        data = data.json();
-
-        this.myForm.controls['post'].setValue(data[0].title.substring(1,10))
+      this.subscription = this.db.getPost().map(data=>data.json()).subscribe(data => {
+       this.myForm.controls['post'].setValue(data[0].body.substring(0,10))
       });
     }
     ngOnDestroy(){
